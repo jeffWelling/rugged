@@ -703,13 +703,6 @@ static void progress_cb(const char *str, int len, void *data)
 	fflush(stdout); /* We don't have the \n to force the flush */
 }
 
-static void progress_cb(const char *str, int len, void *data)
-{
-	data = data;
-	printf("remote: %.*s", len, str);
-	fflush(stdout); /* We don't have the \n to force the flush */
-}
-
 static void *download(void *ptr)
 {
 	struct dl_data *data = (struct dl_data *)ptr;
@@ -763,6 +756,9 @@ static VALUE rb_git_repo_fetch( VALUE self, int argc, VALUE *argv )
 	pthread_t worker;
 	struct dl_data data;
 	git_remote_callbacks callbacks;
+	git_repository *repo;
+
+	Data_Get_Struct( self, git_repository, repo );
 
 	//Figure out if it's named remote or a URL
 	printf( "Fetching %s\n", argv[1] );
@@ -856,6 +852,7 @@ void Init_rugged_repo()
 
 	rb_define_method(rb_cRuggedRepo, "head_detached?",  rb_git_repo_head_detached,  0);
 	rb_define_method(rb_cRuggedRepo, "head_orphan?",  rb_git_repo_head_orphan,  0);
+	rb_define_method(rb_cRuggedRepo, "fetch", rb_git_repo_fetch, 1 );
 
 	rb_cRuggedOdbObject = rb_define_class_under(rb_mRugged, "OdbObject", rb_cObject);
 	rb_define_method(rb_cRuggedOdbObject, "data",  rb_git_odbobj_data,  0);
